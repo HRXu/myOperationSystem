@@ -1,0 +1,107 @@
+;ls程序
+;v0.1
+;=========================================
+;宏定义区
+%define	printf	   0820h:0000h
+%define buffer	08C0h
+%define	currentSeg	08A0h
+%define	mprint	0860h:0000h
+%define	readDisk	0840h:0000h
+;========================================
+entry:	push	AX
+	push	BX
+	push	CX
+	push	DX
+	push	DS
+	push	SI
+
+	mov	AX,0980h
+	mov	DS,AX
+	mov	SI,48	;fat头 数据区
+	
+	mov	CX,116
+l:	mov	AL,[SI]
+	inc	SI
+	mov	AH,[SI]
+	inc	SI
+	mov	BL,[SI]
+	inc	SI
+	mov	BH,[SI]
+	inc	SI
+	push	SI
+	call	read
+	pop	SI
+	loop	l
+
+end:
+	pop	SI
+	pop	DS
+	pop	DX
+	pop	CX
+	pop	BX
+	pop	AX	
+	retf
+
+;---read：读取程序---
+read:
+	push	DS
+	push	CX
+
+	cmp	AL,0
+	je	la1
+	jne	la
+la1:	cmp	AH,0
+	je	la2
+	jne	la
+la2:	cmp	BL,0
+	je	la3
+	jne	la
+la3:	cmp	BH,0
+
+	je	read_end
+
+;改数据段
+la:	push	AX
+	mov	AX,currentSeg
+	push	AX
+	pop	DS
+	pop	AX
+
+;读磁盘
+	call	readDisk
+
+;改数据段
+	mov	AX,08C0h
+	push	AX
+	pop	DS
+	
+	mov	SI,0
+	call	printf	
+	mov	AL,46
+	call	print
+	mov	SI,32
+	call	printf
+	mov	AL,0x0a
+	call	print
+	mov	AL,0x0d
+	call	print
+
+read_end:
+	pop	CX
+	pop	DS
+	ret
+;---显示函数,显示Al内容---
+print:
+	push	BX
+	push	AX
+
+        MOV	AH,0x0e         ; 显示一个文字
+        MOV	BX,15           ; 指定字符颜色
+        INT	0x10            ; 调用显卡BIOS
+
+	pop	AX
+	pop	BX
+	ret
+;------------------------------------------------------------
+	jmp	$
+        times 512-($-$$) db 0        ; 填写0x00

@@ -1,0 +1,51 @@
+        org        0x7c00           
+
+; 程序核心
+
+
+entry:
+        MOV        AX,0            ; 初始化寄存器
+        MOV        SS,AX
+        MOV        SP,0x7c00
+        MOV        DS,AX
+
+; 读磁盘
+
+        MOV        SI,struct
+        MOV        AH,0x42         ; AH=0x42 : 读入磁盘
+	SUB	   BX,BX
+        MOV        DL,0x80         ; 磁盘驱动器0
+        INT        0x13            ; 调用磁盘BIOS
+        JNC        loaded          ; 没出错时跳转到loaded
+	
+	JMP	   error	   ;出错显示error
+
+						
+;错误处理
+error:
+
+        MOV        AL,AH
+	ADD	   AL,48
+	MOV        AH,0x0e         ; 显示一个文字
+        MOV        BX,15           ; 指定字符颜色
+        INT        0x10            ; 调用显卡BIOS
+fin:	HLT
+	JMP	   fin
+
+;正确载入
+loaded:
+	JMP	   0x800:0
+
+;数据段
+
+struct:			;硬盘数据包
+	db 10h		; 磁盘参数包的尺寸，必须为10H
+	db 0 		;保留，必须为零
+	dw 16 		;传输的扇区数
+	dw 0x0000	;
+	dw 0x0800	;内存缓冲区地址（偏移,段）
+	dq 0x00000002	;起始绝对扇区号（即起始扇区的LBA号码）
+	dq 0
+        times 510-($-$$) db 0        ; 填写0x00
+        DB        0x55, 0xaa
+

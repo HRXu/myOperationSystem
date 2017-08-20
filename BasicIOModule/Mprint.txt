@@ -1,0 +1,74 @@
+;内存显示函数,AX:BX为目的内存地址,一次显示256字节
+;破坏AX,BX,CX,DS
+;v0.1.0812.2043
+;========================================
+	push	DS
+	mov	DS,AX
+	mov	SI,BX
+;--------------------------------------------
+	mov	AX,0
+	mov	BX,0	;用于记录一行已输出多少数
+	mov	CX,256	;用于记录总共输出多少数
+line:
+
+;显示高四位
+	mov	AL,[DS:SI]
+	shr	AL,4
+	call	convert
+	call	print
+
+;显示低四位
+	mov	AL,[DS:SI]
+	call	convert
+	call	print
+
+	inc	SI	;指向下一个字符
+
+;显示空格
+	mov	AL,32
+	call	print
+	
+	inc	BX
+	cmp	BX,16
+	je	la2	;如果一行输出达到16个数字则换行
+	loop	line
+
+la2:	mov	BX,0	;清空换行计数器
+
+;显示回车换行
+	mov	AL,10
+	call	print
+	mov	AL,13
+	call	print
+	loop	line
+	
+end:	
+	pop	DS
+	retf
+;-------------------------
+convert:
+	and	AL,00001111b
+	cmp	AL,10
+	jl	la1
+	add	AL,55
+	ret
+la1:	add	AL,48
+	ret
+
+;---显示函数,显示Al内容---
+print:
+	push	BX
+	push	AX
+	push	CX
+
+        MOV	AH,0x0e         ; 显示一个文字
+        MOV	BX,15           ; 指定字符颜色
+        INT	0x10            ; 调用显卡BIOS
+
+	pop	CX
+	pop	AX
+	pop	BX
+	ret
+;------------------------------------------
+	jmp	$
+	times	512-($-$$) DB 0
