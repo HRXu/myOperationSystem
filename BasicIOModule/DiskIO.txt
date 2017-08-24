@@ -1,9 +1,10 @@
-;è¯»ç£ç›˜
-;è°ƒç”¨ä¹‹å‰å°†ç¡¬ç›˜ç¨‹åºåŒ…åœ°å€å­˜å…¥DS:SI
+;¶Á´ÅÅÌ
+;µ÷ÓÃÖ®Ç°½«Ó²ÅÌ³ÌÐò°üµØÖ·´æÈëDS:SI
 ;----------------------------------------------------------
 	push	AX
 	push	BX
 	push	DS
+
 push	AX
 mov	AX,0840h
 push	AX
@@ -12,45 +13,45 @@ mov	SI,struct
 pop	AX
 
 
-la:	mov	byte [lba],AL	;åœ°å€å†™å…¥ç¡¬ç›˜æ•°æ®åŒ…
+la:	mov	byte [lba],AL	;µØÖ·Ð´ÈëÓ²ÅÌÊý¾Ý°ü
 	mov	byte [lba+1],AH
 	mov	byte [lba+2],BL
 	mov	byte [lba+3],BH
 
-        mov	AH,0x42         ; AH=0x42 : è¯»å…¥ç£ç›˜
+        mov	AH,0x42         ; AH=0x42 : ¶ÁÈë´ÅÅÌ
 	sub	BX,BX
-        mov	DL,0x80         ; ç£ç›˜é©±åŠ¨å™¨0
-        int	0x13            ; è°ƒç”¨ç£ç›˜BIOS
+        mov	DL,0x80         ; ´ÅÅÌÇý¶¯Æ÷0
+        int	0x13            ; µ÷ÓÃ´ÅÅÌBIOS
 
-        JNC        loaded          ; æ²¡å‡ºé”™æ—¶è·³è½¬åˆ°loaded
+        JNC        loaded          ; Ã»³ö´íÊ±Ìø×ªµ½loaded
 	
-	JMP	   error	   ;å‡ºé”™
+	JMP	   error	   ;³ö´í
 
 				
-;é”™è¯¯å¤„ç†---------------------------------------------------
+;´íÎó´¦Àí---------------------------------------------------
 error:
 
         MOV        AL,AH
 	ADD	   AL,48
-	MOV        AH,0x0e         ; æ˜¾ç¤ºä¸€ä¸ªæ–‡å­—
-        MOV        BX,15           ; æŒ‡å®šå­—ç¬¦é¢œè‰²
-        INT        0x10            ; è°ƒç”¨æ˜¾å¡BIOS
+	MOV        AH,0x0e         ; ÏÔÊ¾Ò»¸öÎÄ×Ö
+        MOV        BX,15           ; Ö¸¶¨×Ö·ûÑÕÉ«
+        INT        0x10            ; µ÷ÓÃÏÔ¿¨BIOS
 
 fin:	HLT
 	JMP	   fin
-;æ­£ç¡®è½½å…¥--------------------------------------------------
+;ÕýÈ·ÔØÈë--------------------------------------------------
 loaded:
 	pop	DS
 	pop	BX
 	pop	AX
 	retf
 ;------------------------------------------------------------
-struct:			;ç¡¬ç›˜æ•°æ®åŒ…
-	db 10h		;ç£ç›˜å‚æ•°åŒ…çš„å°ºå¯¸ï¼Œå¿…é¡»ä¸º10H
-	db 0 		;ä¿ç•™ï¼Œå¿…é¡»ä¸ºé›¶
-	dw 2 		;ä¼ è¾“çš„æ‰‡åŒºæ•°
+struct:			;Ó²ÅÌÊý¾Ý°ü
+	db 10h		;´ÅÅÌ²ÎÊý°üµÄ³ß´ç£¬±ØÐëÎª10H
+	db 0 		;±£Áô£¬±ØÐëÎªÁã
+	dw 2 		;´«ÊäµÄÉÈÇøÊý
 	dw 0x0000	;
-	dw 0x08C0	;å†…å­˜ç¼“å†²åŒºåœ°å€ï¼ˆåç§»,æ®µï¼‰
-lba:	dq 0x00000000	;èµ·å§‹ç»å¯¹æ‰‡åŒºå·ï¼ˆå³èµ·å§‹æ‰‡åŒºçš„LBAå·ç ï¼‰
+	dw 0x0940	;ÄÚ´æ»º³åÇøµØÖ·£¨Æ«ÒÆ,¶Î£©
+lba:	dq 0x00000000	;ÆðÊ¼¾ø¶ÔÉÈÇøºÅ£¨¼´ÆðÊ¼ÉÈÇøµÄLBAºÅÂë£©
 ;----------------------------------------------------------
         times 512-($-$$) db 0

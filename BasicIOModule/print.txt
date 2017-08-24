@@ -1,5 +1,5 @@
-;æ˜¾ç¤ºå‡½æ•°
-;è°ƒç”¨å­—ç¬¦æŒ‡é’ˆSI
+;ÏÔÊ¾º¯Êý
+;µ÷ÓÃ×Ö·ûÖ¸ÕëSI
 ;v1.0.0817.1933
 ;========================================
 	push	AX
@@ -7,17 +7,95 @@
 ;---------------------------------------------
 putloop:
         MOV	AL,[DS:SI]
-        INC	SI              ;ç»™SIåŠ 1
+        INC	SI              ;¸øSI¼Ó1
         CMP	AL,0
         JE	fin
-        MOV	AH,0x0e         ; æ˜¾ç¤ºä¸€ä¸ªæ–‡å­—
-        MOV	BX,15           ; æŒ‡å®šå­—ç¬¦é¢œè‰²
-        INT	0x10            ; è°ƒç”¨æ˜¾å¡BIOS
+        MOV	AH,0x0e         ; ÏÔÊ¾Ò»¸öÎÄ×Ö
+        MOV	BX,15           ; Ö¸¶¨×Ö·ûÑÕÉ«
+        INT	0x10            ; µ÷ÓÃÏÔ¿¨BIOS
         JMP	putloop	
 fin:	
 	pop	BX
 	pop	AX
 	retf
 ;----------------------------------------------	
+	jmp	$
+	times	256-($-$$) DB 0
+
+;************************************************************************
+;************************************************************************
+
+;ÄÚ´æÏÔÊ¾º¯Êý,AX:BXÎªÄ¿µÄÄÚ´æµØÖ·,Ò»´ÎÏÔÊ¾256×Ö½Ú
+;ÆÆ»µAX,BX,CX,DS
+;v0.1.0812.2043
+;========================================
+	push	DS
+	mov	DS,AX
+	mov	SI,BX
+;--------------------------------------------
+	mov	AX,0
+	mov	BX,0	;ÓÃÓÚ¼ÇÂ¼Ò»ÐÐÒÑÊä³ö¶àÉÙÊý
+	mov	CX,256	;ÓÃÓÚ¼ÇÂ¼×Ü¹²Êä³ö¶àÉÙÊý
+line:
+
+;ÏÔÊ¾¸ßËÄÎ»
+	mov	AL,[DS:SI]
+	shr	AL,4
+	call	convert
+	call	print
+
+;ÏÔÊ¾µÍËÄÎ»
+	mov	AL,[DS:SI]
+	call	convert
+	call	print
+
+	inc	SI	;Ö¸ÏòÏÂÒ»¸ö×Ö·û
+
+;ÏÔÊ¾¿Õ¸ñ
+	mov	AL,32
+	call	print
+	
+	inc	BX
+	cmp	BX,16
+	je	la2	;Èç¹ûÒ»ÐÐÊä³ö´ïµ½16¸öÊý×ÖÔò»»ÐÐ
+	loop	line
+
+la2:	mov	BX,0	;Çå¿Õ»»ÐÐ¼ÆÊýÆ÷
+
+;ÏÔÊ¾»Ø³µ»»ÐÐ
+	mov	AL,10
+	call	print
+	mov	AL,13
+	call	print
+	loop	line
+	
+end:	
+	pop	DS
+	retf
+;-------------------------
+convert:
+	and	AL,00001111b
+	cmp	AL,10
+	jl	la1
+	add	AL,55
+	ret
+la1:	add	AL,48
+	ret
+
+;---ÏÔÊ¾º¯Êý,ÏÔÊ¾AlÄÚÈÝ---
+print:
+	push	BX
+	push	AX
+	push	CX
+
+        MOV	AH,0x0e         ; ÏÔÊ¾Ò»¸öÎÄ×Ö
+        MOV	BX,15           ; Ö¸¶¨×Ö·ûÑÕÉ«
+        INT	0x10            ; µ÷ÓÃÏÔ¿¨BIOS
+
+	pop	CX
+	pop	AX
+	pop	BX
+	ret
+;------------------------------------------
 	jmp	$
 	times	512-($-$$) DB 0

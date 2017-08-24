@@ -1,11 +1,11 @@
-;lsç¨‹åº
+;ls³ÌĞò
 ;v0.1
 ;=========================================
-;å®å®šä¹‰åŒº
+;ºê¶¨ÒåÇø
 %define	printf	   0820h:0000h
 %define buffer	08C0h
 %define	currentSeg	08A0h
-%define	mprint	0860h:0000h
+%define	mprint	0830h:0000h
 %define	readDisk	0840h:0000h
 ;========================================
 entry:	push	AX
@@ -17,7 +17,7 @@ entry:	push	AX
 
 	mov	AX,0980h
 	mov	DS,AX
-	mov	SI,48	;fatå¤´ æ•°æ®åŒº
+	mov	SI,48	;fatÍ· Êı¾İÇø
 	
 	mov	CX,116
 l:	mov	AL,[SI]
@@ -42,7 +42,7 @@ end:
 	pop	AX	
 	retf
 
-;---readï¼šè¯»å–ç¨‹åº---
+;---read£º¶ÁÈ¡³ÌĞò---
 read:
 	push	DS
 	push	CX
@@ -60,18 +60,18 @@ la3:	cmp	BH,0
 
 	je	read_end
 
-;æ”¹æ•°æ®æ®µ
+;¸ÄÊı¾İ¶Î
 la:	push	AX
 	mov	AX,currentSeg
 	push	AX
 	pop	DS
 	pop	AX
 
-;è¯»ç£ç›˜
+;¶Á´ÅÅÌ
 	call	readDisk
 
-;æ”¹æ•°æ®æ®µ
-	mov	AX,08C0h
+;¸ÄÊı¾İ¶Î
+	mov	AX,0940h
 	push	AX
 	pop	DS
 	
@@ -90,18 +90,18 @@ read_end:
 	pop	CX
 	pop	DS
 	ret
-;---æ˜¾ç¤ºå‡½æ•°,æ˜¾ç¤ºAlå†…å®¹---
+;---ÏÔÊ¾º¯Êı,ÏÔÊ¾AlÄÚÈİ---
 print:
 	push	BX
 	push	AX
 
-        MOV	AH,0x0e         ; æ˜¾ç¤ºä¸€ä¸ªæ–‡å­—
-        MOV	BX,15           ; æŒ‡å®šå­—ç¬¦é¢œè‰²
-        INT	0x10            ; è°ƒç”¨æ˜¾å¡BIOS
+        MOV	AH,0x0e         ; ÏÔÊ¾Ò»¸öÎÄ×Ö
+        MOV	BX,15           ; Ö¸¶¨×Ö·ûÑÕÉ«
+        INT	0x10            ; µ÷ÓÃÏÔ¿¨BIOS
 
 	pop	AX
 	pop	BX
 	ret
 ;------------------------------------------------------------
 	jmp	$
-        times 512-($-$$) db 0        ; å¡«å†™0x00
+        times 512-($-$$) db 0        ; ÌîĞ´0x00

@@ -1,4 +1,4 @@
-;åŠ è½½æ–‡ä»¶ç³»ç»Ÿ
+;¼ÓÔØÎÄ¼þÏµÍ³
 ;v1.0.0816.2043
 ;========================================
 entry:
@@ -11,49 +11,49 @@ entry:
 	mov	AX,0x880
 	mov	DS,AX
 	mov	SI,0
-; è¯»ç£ç›˜
+; ¶Á´ÅÅÌ
 
         MOV        SI,struct
-        MOV        AH,0x42         ; AH=0x42 : è¯»å…¥ç£ç›˜
+        MOV        AH,0x42         ; AH=0x42 : ¶ÁÈë´ÅÅÌ
 	SUB	   BX,BX
-        MOV        DL,0x80         ; ç£ç›˜é©±åŠ¨å™¨0
-        INT        0x13            ; è°ƒç”¨ç£ç›˜BIOS
-        JNC        loaded          ; æ²¡å‡ºé”™æ—¶è·³è½¬åˆ°loaded
+        MOV        DL,0x80         ; ´ÅÅÌÇý¶¯Æ÷0
+        INT        0x13            ; µ÷ÓÃ´ÅÅÌBIOS
+        JNC        loaded          ; Ã»³ö´íÊ±Ìø×ªµ½loaded
 	
-	JMP	   error	   ;å‡ºé”™æ˜¾ç¤ºerror
+	JMP	   error	   ;³ö´íÏÔÊ¾error
 						
-;é”™è¯¯å¤„ç†,æ˜¾ç¤ºé”™è¯¯ä»£ç 
+;´íÎó´¦Àí,ÏÔÊ¾´íÎó´úÂë
 error:
 
         MOV        AL,AH
 	ADD	   AL,48
-	MOV        AH,0x0e         ; æ˜¾ç¤ºä¸€ä¸ªæ–‡å­—
-        MOV        BX,15           ; æŒ‡å®šå­—ç¬¦é¢œè‰²
-        INT        0x10            ; è°ƒç”¨æ˜¾å¡BIOS
+	MOV        AH,0x0e         ; ÏÔÊ¾Ò»¸öÎÄ×Ö
+        MOV        BX,15           ; Ö¸¶¨×Ö·ûÑÕÉ«
+        INT        0x10            ; µ÷ÓÃÏÔ¿¨BIOS
 
         MOV        SI,errMsg	   
 eloop:	
         MOV        AL,[DS:SI]
-        INC	   SI              ; ç»™SIåŠ 1
+        INC	   SI              ; ¸øSI¼Ó1
         CMP        AL,0
         je         end
-        mov        AH,0x0e         ; æ˜¾ç¤ºä¸€ä¸ªæ–‡å­—
-        mov        BX,15           ; æŒ‡å®šå­—ç¬¦é¢œè‰²
-        int        0x10            ; è°ƒç”¨æ˜¾ç¤ºä¸­æ–­
+        mov        AH,0x0e         ; ÏÔÊ¾Ò»¸öÎÄ×Ö
+        mov        BX,15           ; Ö¸¶¨×Ö·ûÑÕÉ«
+        int        0x10            ; µ÷ÓÃÏÔÊ¾ÖÐ¶Ï
    	jmp        eloop
 
 
-;æ­£ç¡®è½½å…¥æ˜¾ç¤ºé”™è¯¯ä¿¡æ¯
+;ÕýÈ·ÔØÈëÏÔÊ¾´íÎóÐÅÏ¢
 loaded:
         MOV        SI,msg	   
 putloop:	
         MOV        AL,[SI]
-        INC	   SI              ; ç»™SIåŠ 1
+        INC	   SI              ; ¸øSI¼Ó1
         CMP        AL,0
         JE         end
-        MOV        AH,0x0e         ; æ˜¾ç¤ºä¸€ä¸ªæ–‡å­—
-        MOV        BX,15           ; æŒ‡å®šå­—ç¬¦é¢œè‰²
-        INT        0x10            ; è°ƒç”¨æ˜¾ç¤ºä¸­æ–­
+        MOV        AH,0x0e         ; ÏÔÊ¾Ò»¸öÎÄ×Ö
+        MOV        BX,15           ; Ö¸¶¨×Ö·ûÑÕÉ«
+        INT        0x10            ; µ÷ÓÃÏÔÊ¾ÖÐ¶Ï
    	JMP        putloop
 
 end:
@@ -64,13 +64,13 @@ end:
 	pop	AX	
 	retf
 ;------------------------------------------------------------
-struct:			;ç¡¬ç›˜æ•°æ®åŒ…
-	db 10h		; ç£ç›˜å‚æ•°åŒ…çš„å°ºå¯¸ï¼Œå¿…é¡»ä¸º10H
-	db 0 		;ä¿ç•™ï¼Œå¿…é¡»ä¸ºé›¶
-	dw 4 		;ä¼ è¾“çš„æ‰‡åŒºæ•°
+struct:			;Ó²ÅÌÊý¾Ý°ü
+	db 10h		; ´ÅÅÌ²ÎÊý°üµÄ³ß´ç£¬±ØÐëÎª10H
+	db 0 		;±£Áô£¬±ØÐëÎªÁã
+	dw 4 		;´«ÊäµÄÉÈÇøÊý
 	dw 0x0000	;
-	dw 0x0980	;å†…å­˜ç¼“å†²åŒºåœ°å€ï¼ˆåç§»,æ®µï¼‰
-	dq 0x00000800	;èµ·å§‹ç»å¯¹æ‰‡åŒºå·ï¼ˆå³èµ·å§‹æ‰‡åŒºçš„LBAå·ç ï¼‰
+	dw 0x0980	;ÄÚ´æ»º³åÇøµØÖ·£¨Æ«ÒÆ,¶Î£©
+	dq 0x00000800	;ÆðÊ¼¾ø¶ÔÉÈÇøºÅ£¨¼´ÆðÊ¼ÉÈÇøµÄLBAºÅÂë£©
 msg:
         DB        "File System loaded"
         DB        0
@@ -79,4 +79,4 @@ errMsg:
         DB        0
 ;------------------------------------------------------------
 	jmp	$
-        times 512-($-$$) db 0        ; å¡«å†™0x00
+        times 512-($-$$) db 0        ; ÌîÐ´0x00
