@@ -1,32 +1,31 @@
-;核心程序
-;0.1.0816.2035
+;shell
+;0.3.0816.2035
+;返回值al=0则找不到该文件或改命令为系统调用
+;返回值al!=0则找到该文件
 ;=========================================
 ;宏定义区
 %define	printf	   0820h:0000h
 %define	Mprintf    0830h:0000h
-%define fileSystemInit 0880h:0000h
 %define	list	08A0h:0000h
 %define	readDisk	08C0h:0000h
-;----------------------------------------------------------	
-	jmp	   entry
-;----------------------------------------------------------
-dataSegment:
-msg:		
-        DB	"Initializing System"    
+%define currentSeg	0840h
+;------------------------------------------------
+jmp	entry
+;-----------------------------------------------------
+title:
+	times	32 DB 0 ;存储文件目录信息
+
 msgret: DB	0x0a,0x0d,0	;回车换行,结束符
-title:	
-	DB	0x0a,0x0d	
-	DB	">"
-	DB	0
+
 NoFileErrMsg:
-	DB	"No such program or file"	
+	DB	"No such file"	
 	DB	0
 ;=====用于比较的字符串=====
 mbr:
 	DB	"mbr"
 	DB	0	
-fss:
-	DB	"fss"	
+cls:
+	DB	"cls"	
 	DB	0
 ls:
 	DB	"ls"	
@@ -34,33 +33,20 @@ ls:
 ;键盘输入缓冲区
 buffer:
 	times	32 DB 0
-;----------------------------------------------------------
-;程序起始
-;初始化数据段
+;----------------------------------------------------
 entry:
-        MOV        AX,0800h 
-        MOV        DS,AX
-	MOV	   ES,AX
+	pusha
 
-;初始化堆栈区
-	MOV	AX,0x07e0
-	MOV	SS,AX	
-	MOV	SP,0x01FE
-	MOV	BP,SP
-
-	;//初始化完成
-        mov	SI,msg
-	call	printf
-
-;加载文件系统
-	call	fileSystemInit
-	
-;----------------shell v0.2-------------------------
+;换数据段
+	mov	AX,currentSeg
+	mov	DS,AX
+	mov	ES,AX
 
 ;输入到键盘缓冲区
-core:		
 	mov	SI,title
 	call	printf
+	mov	AL,'>'
+	call	print
 
 	mov	SI,buffer
 	mov	cx,32	;清空缓冲区
@@ -69,7 +55,7 @@ clsBuf:	mov	[SI],byte 0
 	loop	clsBuf	
 
 	mov	SI,buffer;输入
-la3:	mov	AX,0
+la3:	xor	AX,AX
 	int	16h
 	
 	cmp	AL,0x0a
@@ -82,7 +68,7 @@ la3:	mov	AX,0
 	inc	SI
 	jmp	la3
 
-;按输入查找对应程序,BL存放字符串，SI存放缓冲区指针
+;按输入查找对应程序,DI存放输入字符串，SI存放缓冲区指针
 la2:
 	mov	SI,msgret
 	call	printf	;换行
@@ -105,6 +91,7 @@ la2:
 	cmp	AL,0
 	jnz	process4
 
+//此处为文件系统查找文件部分
 	mov	SI,NoFileErrMsg
 	call	printf
 	
@@ -116,7 +103,7 @@ process1:;====mbr:显示MBR扇区====
 	call	Mprintf
 	jmp	end
 
-process3:;====fss:显示内存中的文件系统头====
+process3:;====cls:清屏====//未完成
         mov	AX,0x980
 	mov	BX,0
 	call	Mprintf
@@ -126,8 +113,8 @@ process4:;====ls:显示当前文件列表====
 	call	list
 	jmp	end
 
-end:    JMP        core            ; 无限循环
-
+end:    popa
+	retf
 
 ;----打印AL----------------
 print:	
@@ -166,5 +153,5 @@ co_end:	pop	DX
 co_end2:mov	AL,1
 	pop	DX
 	ret
-;----------------------------------------------------------
-	times	512-($-$$) DB 0
+;---------------------------------------------
+	times	1024-($-$$) DB 0

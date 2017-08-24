@@ -1,12 +1,12 @@
 ;ls程序
-;v0.1
+;v1.0
 ;=========================================
 ;宏定义区
-%define	printf	   0820h:0000h
-%define buffer	08C0h
+%define	printf	   	0820h:0000h
+%define buffer		0940h
 %define	currentSeg	08A0h
-%define	mprint	0830h:0000h
-%define	readDisk	0840h:0000h
+%define	mprint		0830h:0000h
+%define	readDisk	08C0h:0000h
 ;========================================
 entry:	push	AX
 	push	BX
@@ -71,7 +71,7 @@ la:	push	AX
 	call	readDisk
 
 ;改数据段
-	mov	AX,0940h
+	mov	AX,buffer
 	push	AX
 	pop	DS
 	

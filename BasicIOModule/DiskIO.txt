@@ -6,7 +6,7 @@
 	push	DS
 
 push	AX
-mov	AX,0840h
+mov	AX,08C0h
 push	AX
 pop	DS
 mov	SI,struct
