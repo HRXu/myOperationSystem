@@ -1,5 +1,5 @@
-;ÏÔÊ¾º¯Êý
-;µ÷ÓÃ×Ö·ûÖ¸ÕëSI
+;æ˜¾ç¤ºå‡½æ•°
+;è°ƒç”¨å­—ç¬¦æŒ‡é’ˆSI
 ;v1.0.0817.1933
 ;========================================
 	push	AX
@@ -7,12 +7,12 @@
 ;---------------------------------------------
 putloop:
         MOV	AL,[DS:SI]
-        INC	SI              ;¸øSI¼Ó1
+        INC	SI              ;ç»™SIåŠ 1
         CMP	AL,0
         JE	fin
-        MOV	AH,0x0e         ; ÏÔÊ¾Ò»¸öÎÄ×Ö
-        MOV	BX,15           ; Ö¸¶¨×Ö·ûÑÕÉ«
-        INT	0x10            ; µ÷ÓÃÏÔ¿¨BIOS
+        MOV	AH,0x0e         ; æ˜¾ç¤ºä¸€ä¸ªæ–‡å­—
+        MOV	BX,15           ; æŒ‡å®šå­—ç¬¦é¢œè‰²
+        INT	0x10            ; è°ƒç”¨æ˜¾å¡BIOS
         JMP	putloop	
 fin:	
 	pop	BX

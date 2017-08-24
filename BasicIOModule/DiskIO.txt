@@ -1,5 +1,5 @@
-;¶Á´ÅÅÌ
-;µ÷ÓÃÖ®Ç°½«Ó²ÅÌ³ÌÐò°üµØÖ·´æÈëDS:SI
+;è¯»ç£ç›˜
+;è°ƒç”¨ä¹‹å‰å°†ç¡¬ç›˜ç¨‹åºåŒ…åœ°å€å­˜å…¥DS:SI
 ;----------------------------------------------------------
 	push	AX
 	push	BX
@@ -12,45 +12,45 @@ mov	SI,struct
 pop	AX
 
 
-la:	mov	byte [lba],AL	;µØÖ·Ð´ÈëÓ²ÅÌÊý¾Ý°ü
+la:	mov	byte [lba],AL	;åœ°å€å†™å…¥ç¡¬ç›˜æ•°æ®åŒ…
 	mov	byte [lba+1],AH
 	mov	byte [lba+2],BL
 	mov	byte [lba+3],BH
 
-        mov	AH,0x42         ; AH=0x42 : ¶ÁÈë´ÅÅÌ
+        mov	AH,0x42         ; AH=0x42 : è¯»å…¥ç£ç›˜
 	sub	BX,BX
-        mov	DL,0x80         ; ´ÅÅÌÇý¶¯Æ÷0
-        int	0x13            ; µ÷ÓÃ´ÅÅÌBIOS
+        mov	DL,0x80         ; ç£ç›˜é©±åŠ¨å™¨0
+        int	0x13            ; è°ƒç”¨ç£ç›˜BIOS
 
-        JNC        loaded          ; Ã»³ö´íÊ±Ìø×ªµ½loaded
+        JNC        loaded          ; æ²¡å‡ºé”™æ—¶è·³è½¬åˆ°loaded
 	
-	JMP	   error	   ;³ö´í
+	JMP	   error	   ;å‡ºé”™
 
 				
-;´íÎó´¦Àí---------------------------------------------------
+;é”™è¯¯å¤„ç†---------------------------------------------------
 error:
 
         MOV        AL,AH
 	ADD	   AL,48
-	MOV        AH,0x0e         ; ÏÔÊ¾Ò»¸öÎÄ×Ö
-        MOV        BX,15           ; Ö¸¶¨×Ö·ûÑÕÉ«
-        INT        0x10            ; µ÷ÓÃÏÔ¿¨BIOS
+	MOV        AH,0x0e         ; æ˜¾ç¤ºä¸€ä¸ªæ–‡å­—
+        MOV        BX,15           ; æŒ‡å®šå­—ç¬¦é¢œè‰²
+        INT        0x10            ; è°ƒç”¨æ˜¾å¡BIOS
 
 fin:	HLT
 	JMP	   fin
-;ÕýÈ·ÔØÈë--------------------------------------------------
+;æ­£ç¡®è½½å…¥--------------------------------------------------
 loaded:
 	pop	DS
 	pop	BX
 	pop	AX
 	retf
 ;------------------------------------------------------------
-struct:			;Ó²ÅÌÊý¾Ý°ü
-	db 10h		;´ÅÅÌ²ÎÊý°üµÄ³ß´ç£¬±ØÐëÎª10H
-	db 0 		;±£Áô£¬±ØÐëÎªÁã
-	dw 2 		;´«ÊäµÄÉÈÇøÊý
+struct:			;ç¡¬ç›˜æ•°æ®åŒ…
+	db 10h		;ç£ç›˜å‚æ•°åŒ…çš„å°ºå¯¸ï¼Œå¿…é¡»ä¸º10H
+	db 0 		;ä¿ç•™ï¼Œå¿…é¡»ä¸ºé›¶
+	dw 2 		;ä¼ è¾“çš„æ‰‡åŒºæ•°
 	dw 0x0000	;
-	dw 0x08C0	;ÄÚ´æ»º³åÇøµØÖ·£¨Æ«ÒÆ,¶Î£©
-lba:	dq 0x00000000	;ÆðÊ¼¾ø¶ÔÉÈÇøºÅ£¨¼´ÆðÊ¼ÉÈÇøµÄLBAºÅÂë£©
+	dw 0x08C0	;å†…å­˜ç¼“å†²åŒºåœ°å€ï¼ˆåç§»,æ®µï¼‰
+lba:	dq 0x00000000	;èµ·å§‹ç»å¯¹æ‰‡åŒºå·ï¼ˆå³èµ·å§‹æ‰‡åŒºçš„LBAå·ç ï¼‰
 ;----------------------------------------------------------
         times 512-($-$$) db 0
