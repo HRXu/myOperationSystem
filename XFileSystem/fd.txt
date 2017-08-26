@@ -1,0 +1,156 @@
+;查找与载入文件
+;返回值AL=0为找不到该文件
+;==================================================
+%define fd_readDisk	0900h:0000h
+%define	readDisk	08C0h:0000h
+%define printf		0820h:0000h
+%define	currentSeg	08E0h
+%define	FAT		0940h
+%define	mprintf		0830h:0000h
+;==================================================
+	jmp	entry
+;-------------------------------------
+buffer:	times	32 DB 0
+;-------------------------------------
+entry:	pusha
+
+	mov	AX,currentSeg
+	push	AX
+	pop	ES	
+	
+	mov	DI,buffer
+	
+;复制键盘缓冲区文字
+	mov	CX,32
+lc:	mov	AL,[SI]
+	mov	[ES:DI],AL
+
+	inc	SI
+	inc	DI
+	loop	lc
+
+	mov	AX,0980h
+	mov	DS,AX
+	mov	SI,48	;根目录fat头 数据区
+;依次读取文件
+	mov	CX,116
+l:	mov	AL,[SI]
+	inc	SI
+	mov	AH,[SI]
+	inc	SI
+	mov	BL,[SI]
+	inc	SI
+	mov	BH,[SI]
+	inc	SI
+
+	call	read
+	cmp	AL,0	;是否相等
+	jne	ld
+	je	lde
+	
+ld:	mov	AX,FAT
+	mov	DS,AX
+	mov	SI,48	;载入文件内容
+	mov	AL,[SI]
+	inc	SI
+	mov	AH,[SI]
+	inc	SI
+	mov	BL,[SI]
+	inc	SI
+	mov	BH,[SI]
+	inc	SI
+
+	call	fd_readDisk
+	jmp	end2
+
+lde:	loop	l
+
+end:	popa
+	retf
+
+end2:	popa
+	mov	AL,1
+	retf
+
+;---read：读取程序---
+read:
+	push	SI
+	push	DS
+	push	ES
+	push	CX
+
+	cmp	AL,0
+	je	la1
+	jne	la
+la1:	cmp	AH,0
+	je	la2
+	jne	la
+la2:	cmp	BL,0
+	je	la3
+	jne	la
+la3:	cmp	BH,0
+	je	read_end
+
+;地址非零则进行对比
+la:	call	readDisk	;读文件头
+
+;改数据段
+;DS：输入的字符缓存区
+;ES：文件头缓存区
+	mov	AX,currentSeg
+	push	AX
+	pop	DS
+	mov	AX,FAT
+	push	AX
+	pop	ES
+
+	mov	SI,buffer
+	mov	DI,0
+	call	compare	;对比字符串
+
+read_end:
+	pop	CX
+	pop	ES
+	pop	DS
+	pop	SI
+	ret
+
+;----比较字符串，DI，SI指向要对比的字符串----
+;----AL返回结果，非零为相等----
+compare:push	DX
+	mov	AL,0
+cola:	mov	DH,[ES:DI]
+	mov	DL,[DS:SI]
+
+	cmp	DH,DL
+	jne	co_end
+	inc	DI
+	inc	SI
+	mov	DH,[ES:DI]
+	mov	DL,[DS:SI]
+	cmp	DH,0
+	jz	co_end2
+	cmp	DL,0
+	jz	co_end2
+	jmp	cola
+	
+co_end:	pop	DX
+	ret
+co_end2:mov	AL,1
+	pop	DX
+	ret
+;---显示函数,显示Al内容---
+print:
+	push	BX
+	push	AX
+
+        MOV	AH,0x0e         ; 显示一个文字
+        MOV	BX,15           ; 指定字符颜色
+        INT	0x10            ; 调用显卡BIOS
+
+	pop	AX
+	pop	BX
+	ret
+;--------------------------------------------------------
+
+	times	512-($-$$) DB 0

@@ -4,3 +4,6 @@
 &nasm ./BasicIOModule/DiskIO.txt -o Bin/DiskIO.bin
 &nasm ./XFileSystem/loadFileSystem.txt -o Bin/LoadFileSystem.bin
 &nasm ./XFileSystem/list.txt -o Bin/list.bin
+&nasm shell.txt -o Bin/shell.bin
+&nasm ./XFileSystem/fd.txt -o Bin/fd.bin
+&nasm ./XFileSystem/fdDiskIO.txt -o Bin/fdDiskIO.bin

@@ -1,40 +1,21 @@
-;核心程序
-;0.1.0816.2035
+;初始化与调度程序
+;0.1.0825.1621
 ;=========================================
 ;宏定义区
-%define	printf	   0820h:0000h
-%define	Mprintf    0830h:0000h
-%define fileSystemInit 0880h:0000h
-%define	list	08A0h:0000h
+%define	printf		0820h:0000h
+%define	Mprintf		0830h:0000h
+%define fileSystemInit	0880h:0000h
+%define	list		08A0h:0000h
 %define	readDisk	08C0h:0000h
+%define shell		0840h:0000h
 ;----------------------------------------------------------	
 	jmp	   entry
 ;----------------------------------------------------------
-dataSegment:
 msg:		
         DB	"Initializing System"    
 msgret: DB	0x0a,0x0d,0	;回车换行,结束符
-title:	
-	DB	0x0a,0x0d	
-	DB	">"
-	DB	0
-NoFileErrMsg:
-	DB	"No such program or file"	
-	DB	0
-;=====用于比较的字符串=====
-mbr:
-	DB	"mbr"
-	DB	0	
-fss:
-	DB	"fss"	
-	DB	0
-ls:
-	DB	"ls"	
-	DB	0
-;键盘输入缓冲区
-buffer:
-	times	32 DB 0
-;----------------------------------------------------------
+
+;-------------------------------------------------
 ;程序起始
 ;初始化数据段
 entry:
@@ -54,83 +35,32 @@ entry:
 
 ;加载文件系统
 	call	fileSystemInit
+
+	mov	AL,0x0a
+	call	print
+	mov	AL,0x0d
+	call	print
+;----------------------核心程序------------------
+core:
+	call	shell
+	cmp	AL,0
+	je	end
+
+;---加载用户进程-------
+userProcess:
+	pusha
+	call	0A00h:0000h
+	popa
 	
-;----------------shell v0.2-------------------------
-
-;输入到键盘缓冲区
-core:		
-	mov	SI,title
-	call	printf
-
-	mov	SI,buffer
-	mov	cx,32	;清空缓冲区
-clsBuf:	mov	[SI],byte 0
-	inc	SI
-	loop	clsBuf	
-
-	mov	SI,buffer;输入
-la3:	mov	AX,0
-	int	16h
-	
-	cmp	AL,0x0a
-	jz	la2
-	cmp	AL,0x0d
-	jz	la2	;遇到回车则结束输入
-
-	call	print	;输出当前字符
-	mov	[SI],AL
-	inc	SI
-	jmp	la3
-
-;按输入查找对应程序,BL存放字符串，SI存放缓冲区指针
-la2:
-	mov	SI,msgret
-	call	printf	;换行
-
-	mov	SI,buffer
-	mov	BX,mbr
-	call	compare
-	cmp	AL,0
-	jnz	process1
-
-	mov	SI,buffer
-	mov	BX,fss
-	call	compare
-	cmp	AL,0
-	jnz	process3
-
-	mov	SI,buffer
-	mov	BX,ls
-	call	compare
-	cmp	AL,0
-	jnz	process4
-
-	mov	SI,NoFileErrMsg
-	call	printf
+end:	mov	AL,0x0a
+	call	print
+	mov	AL,0x0d
+	call	print
 	
 	jmp	core
-
-process1:;====mbr:显示MBR扇区====		
-        mov	AX,0x7d0
-	mov	BX,0
-	call	Mprintf
-	jmp	end
-
-process3:;====fss:显示内存中的文件系统头====
-        mov	AX,0x980
-	mov	BX,0
-	call	Mprintf
-	jmp	end
-
-process4:;====ls:显示当前文件列表====
-	call	list
-	jmp	end
-
-end:    JMP        core            ; 无限循环
-
-
+;**********子例程*************
 ;----打印AL----------------
-print:	
+print:
 	push	AX
 	push	BX
 	
@@ -140,31 +70,6 @@ print:
 	
 	pop	BX
 	pop	AX
-	ret
-;----比较字符串，BL，SI指向要对比的字符串----
-;----AL返回结果，非零为相等----
-compare:
-	push	DX
-	mov	AL,0
-cola:	mov	DH,[BX]
-	mov	DL,[SI]
-
-	cmp	DH,DL
-	jnz	co_end
-	inc	BX
-	inc	SI
-	mov	DH,[BX]
-	mov	DL,[SI]
-	cmp	DH,0
-	jz	co_end2
-	cmp	DL,0
-	jz	co_end2
-	jmp	cola
-	
-co_end:	pop	DX
-	ret
-co_end2:mov	AL,1
-	pop	DX
 	ret
 ;----------------------------------------------------------
 	times	512-($-$$) DB 0

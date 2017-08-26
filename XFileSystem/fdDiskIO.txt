@@ -5,12 +5,12 @@
 	push	BX
 	push	DS
 
-push	AX
-mov	AX,08C0h
-push	AX
-pop	DS
-mov	SI,struct
-pop	AX
+	push	AX
+	mov	AX,0900h
+	push	AX
+	pop	DS
+	mov	SI,struct
+	pop	AX
 
 
 la:	mov	byte [lba],AL	;地址写入硬盘数据包
@@ -47,11 +47,11 @@ loaded:
 	retf
 ;------------------------------------------------------------
 struct:			;硬盘数据包
-	db 10h		;磁盘参数包的尺寸，必须为10H
-	db 0 		;保留，必须为零
+	db 10h		;磁盘参数包的尺寸
+	db 0 		;保留
 	dw 1 		;传输的扇区数
 	dw 0x0000	;
-	dw 0x0940	;内存缓冲区地址（偏移,段）
+	dw 0x0A00	;内存缓冲区2地址（偏移,段）
 lba:	dq 0x00000000	;起始绝对扇区号（即起始扇区的LBA号码）
 ;----------------------------------------------------------
         times 512-($-$$) db 0

@@ -1,13 +1,14 @@
 ;shell
-;0.3.0816.2035
+;0.3.0825.1536
 ;返回值al=0则找不到该文件或改命令为系统调用
 ;返回值al!=0则找到该文件
 ;=========================================
 ;宏定义区
-%define	printf	   0820h:0000h
-%define	Mprintf    0830h:0000h
-%define	list	08A0h:0000h
+%define	printf	   	0820h:0000h
+%define	Mprintf    	0830h:0000h
+%define	list		08A0h:0000h
 %define	readDisk	08C0h:0000h
+%define	fd		08E0h:0000h
 %define currentSeg	0840h
 ;------------------------------------------------
 jmp	entry
@@ -36,7 +37,6 @@ buffer:
 ;----------------------------------------------------
 entry:
 	pusha
-
 ;换数据段
 	mov	AX,currentSeg
 	mov	DS,AX
@@ -80,42 +80,56 @@ la2:
 	jnz	process1
 
 	mov	SI,buffer
-	mov	BX,fss
+	mov	BX,cls
 	call	compare
 	cmp	AL,0
-	jnz	process3
+	jnz	process2
 
 	mov	SI,buffer
 	mov	BX,ls
 	call	compare
 	cmp	AL,0
-	jnz	process4
+	jnz	process3
 
-//此处为文件系统查找文件部分
-	mov	SI,NoFileErrMsg
-	call	printf
-	
-	jmp	core
+;文件系统查找文件
+	mov	SI,buffer
+	call	fd	;fd有返回值 AL
+	cmp	AL,0
+	je	end1
+	jne	end2
 
 process1:;====mbr:显示MBR扇区====		
         mov	AX,0x7d0
 	mov	BX,0
 	call	Mprintf
-	jmp	end
+	jmp	end1
 
-process3:;====cls:清屏====//未完成
-        mov	AX,0x980
-	mov	BX,0
-	call	Mprintf
-	jmp	end
+process2:;====cls:清屏====//未完成
+	push	AX
+	push	BX
+	push	CX
 
-process4:;====ls:显示当前文件列表====
+	mov	AX,60h
+	mov	BH,0Fh
+	mov	CX,0
+	mov	DX,1830h
+	int	10h
+	
+	pop	CX
+	pop	BX
+	pop	AX
+	jmp	end1
+	
+process3:;====ls:显示当前文件列表====
 	call	list
-	jmp	end
+	jmp	end1
 
-end:    popa
+end1:	popa
+	mov	AL,0
 	retf
-
+end2:	popa
+	mov	AL,1
+	retf
 ;----打印AL----------------
 print:	
 	push	AX
